@@ -34,22 +34,15 @@ class PyKinectRuntime(object):
                                           ctypes.POINTER(ctypes.c_void_p),
                                           ctypes.POINTER(self.Py_ssize_t)]
         
-        self._color_frame_ready = PyKinectV2._event()
-        self._depth_frame_ready = PyKinectV2._event()
-        self._body_frame_ready = PyKinectV2._event()
-        self._body_index_frame_ready = PyKinectV2._event()
-        self._infrared_frame_ready = PyKinectV2._event()
-        self._long_exposure_infrared_frame_ready = PyKinectV2._event()
-        self._audio_frame_ready = PyKinectV2._event()
+        #self._color_frame_ready = PyKinectV2._event()
+        #self._depth_frame_ready = PyKinectV2._event()
+        #self._body_frame_ready = PyKinectV2._event()
+        #self._body_index_frame_ready = PyKinectV2._event()
+        #self._infrared_frame_ready = PyKinectV2._event()
+        #self._long_exposure_infrared_frame_ready = PyKinectV2._event()
+        #self._audio_frame_ready = PyKinectV2._event()
 
         self._close_event = ctypes.windll.kernel32.CreateEventW(None, False, False, None)
-        self._close_color_event = ctypes.windll.kernel32.CreateEventW(None, False, False, None)
-        self._close_depth_event = ctypes.windll.kernel32.CreateEventW(None, False, False, None)
-        self._close_body_event = ctypes.windll.kernel32.CreateEventW(None, False, False, None)
-        self._close_body_index_event = ctypes.windll.kernel32.CreateEventW(None, False, False, None)
-        self._close_infrared_event = ctypes.windll.kernel32.CreateEventW(None, False, False, None)
-        self._close_long_exposure_infrared_event = ctypes.windll.kernel32.CreateEventW(None, False, False, None)
-        self._close_audio_event = ctypes.windll.kernel32.CreateEventW(None, False, False, None)
 
         self._color_frame_arrived_event = 0
         self._depth_frame_arrived_event = 0
@@ -90,11 +83,11 @@ class PyKinectRuntime(object):
         self._waitHandleCount = 1
 
         self._color_source = self._sensor.ColorFrameSource 
-        self._color_frame_desc = self._color_source.FrameDescription
+        self.color_frame_desc = self._color_source.FrameDescription
         self._depth_source = self._sensor.DepthFrameSource 
-        self._depth_frame_desc = self._depth_source.FrameDescription 
+        self.depth_frame_desc = self._depth_source.FrameDescription 
         self._body_index_source = self._sensor.BodyIndexFrameSource 
-        self._body_index_frame_desc = self._body_index_source.FrameDescription 
+        self.body_index_frame_desc = self._body_index_source.FrameDescription 
         self._body_source = self._sensor.BodyFrameSource 
         self._body_frame_data = ctypes.POINTER(ctypes.POINTER(IBody))
         self.max_body_count = self._body_source.BodyCount
@@ -109,7 +102,7 @@ class PyKinectRuntime(object):
 
         if(self.frame_source_types & FrameSourceTypes_Color):
             self._color_frame_data = ctypes.POINTER(ctypes.c_ubyte) 
-            self._color_frame_data_capacity = ctypes.c_uint(self._color_frame_desc.Width * self._color_frame_desc.Height * 4)
+            self._color_frame_data_capacity = ctypes.c_uint(self.color_frame_desc.Width * self.color_frame_desc.Height * 4)
             self._color_frame_data_type = ctypes.c_ubyte * self._color_frame_data_capacity.value
             self._color_frame_data = ctypes.cast(self._color_frame_data_type(), ctypes.POINTER(ctypes.c_ubyte))
             self._color_frame_reader = self._color_source.OpenReader()
@@ -119,7 +112,7 @@ class PyKinectRuntime(object):
 
         if(self.frame_source_types & FrameSourceTypes_Depth):
             self._depth_frame_data = ctypes.POINTER(ctypes.c_ushort) 
-            self._depth_frame_data_capacity = ctypes.c_uint(self._depth_frame_desc.Width * self._depth_frame_desc.Height)
+            self._depth_frame_data_capacity = ctypes.c_uint(self.depth_frame_desc.Width * self.depth_frame_desc.Height)
             self._depth_frame_data_type = ctypes.c_ushort * self._depth_frame_data_capacity.value
             self._depth_frame_data = ctypes.cast(self._depth_frame_data_type(), ctypes.POINTER(ctypes.c_ushort))
             self._depth_frame_reader = self._depth_source.OpenReader()
@@ -129,7 +122,7 @@ class PyKinectRuntime(object):
 
         if(self.frame_source_types & FrameSourceTypes_BodyIndex):
             self._body_index_frame_data = ctypes.POINTER(ctypes.c_ubyte) 
-            self._body_index_frame_data_capacity = ctypes.c_uint(self._body_index_frame_desc.Width * self._body_index_frame_desc.Height)
+            self._body_index_frame_data_capacity = ctypes.c_uint(self.body_index_frame_desc.Width * self.body_index_frame_desc.Height)
             self._body_index_frame_data_type = ctypes.c_ubyte * self._body_index_frame_data_capacity.value
             self._body_index_frame_data = ctypes.cast(self._body_index_frame_data_type(), ctypes.POINTER(ctypes.c_ubyte))
             self._body_index_frame_reader = self._body_index_source.OpenReader()
@@ -276,7 +269,6 @@ class PyKinectRuntime(object):
 
     def body_joints_to_color_space(self, joints):
         joint_points = numpy.ndarray((PyKinectV2.JointType_Count), dtype=numpy.object)
-        #joint_points = (PyKinectV2._ColorSpacePoint * PyKinectV2.JointType_Count)()
 
         for j in range(0, PyKinectV2.JointType_Count):
             joint_points[j] = self.body_joint_to_color_space(joints[j])
