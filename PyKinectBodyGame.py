@@ -42,8 +42,8 @@ class BodyGameRuntime(object):
         # Used to manage how fast the screen updates
         self._clock = pygame.time.Clock()
 
-        # Kinect runtime object, we want only color and body index frames 
-        self._kinect = PyKinectRuntime.PyKinectRuntime(PyKinectV2.FrameSourceTypes_Color | PyKinectV2.FrameSourceTypes_Body | PyKinectV2.FrameSourceTypes_Depth |PyKinectV2.FrameSourceTypes_BodyIndex)
+        # Kinect runtime object, we want only color and body frames 
+        self._kinect = PyKinectRuntime.PyKinectRuntime(PyKinectV2.FrameSourceTypes_Color | PyKinectV2.FrameSourceTypes_Body)
 
         # back buffer surface for getting Kinect color frames, 32bit color, width and height equal to the Kinect color frame size
         self._frameSurface = pygame.Surface((self._kinect._color_frame_desc.Width, self._kinect._color_frame_desc.Height), 0, 32)
@@ -123,18 +123,17 @@ class BodyGameRuntime(object):
                     
             # --- Game logic should go here
 
-            # --- Drawing code 
-
+            # --- Getting frames and drawing  
             # --- Woohoo! We've got a color frame! Let's fill out back buffer surface with frame's data 
             if self._kinect.has_new_color_frame():
+                frame = self._kinect.get_last_color_frame()
                 self._frameSurface.lock()
                 address = self._kinect.surface_as_array(self._frameSurface.get_buffer())
-                frame = self._kinect.get_last_color_frame()
                 ctypes.memmove(address, frame.ctypes.data, frame.size)
                 del address
                 self._frameSurface.unlock()
 
-            # --- Cool! We have a body index frame, so can get skeletons
+            # --- Cool! We have a body frame, so can get skeletons
             if self._kinect.has_new_body_frame(): 
                 self._bodies = self._kinect.get_last_body_frame()
 
@@ -146,6 +145,7 @@ class BodyGameRuntime(object):
                         continue 
                     
                     joints = body.joints 
+                    # convert joint coordinates to color space 
                     joint_points = self._kinect.body_joints_to_color_space(joints)
                     self.draw_body(joints, joint_points, SKELETON_COLORS[i])
 
