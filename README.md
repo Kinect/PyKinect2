@@ -14,6 +14,3 @@ PyKinectBodyGame is a sample game. It demonstrates how to use Kinect color and b
 
 ## Installation
 You only need PyKinectV2.py and PyKinectRuntime.py (+ NumPy installed and PyGame for running PyKinectBodyGame). PyKinectRuntime class is what you need for working with Kinect sensor. See how to use it in PyKinectBodyGame sample.
-
-TODO:  insert link to where the package lives and install instructions 
-
