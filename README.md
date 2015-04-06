@@ -1,7 +1,9 @@
 # PyKinect2
 
 Enables writing Kinect applications, games, and experiences using Python.  Inspired by the original [PyKinect project on CodePlex](http://pytools.codeplex.com/wikipage?title=PyKinect)
+
 Only color, depth, body and body index frames are supported in this version. 
+
 PyKinectBodyGame is a sample game. It demonstrates using Kinect color and body index frames 
 
 ## Prerequisites
@@ -13,6 +15,8 @@ PyKinectBodyGame is a sample game. It demonstrates using Kinect color and body i
 
 ## Installation
 You only need PyKinectV2.py and PyKinectRuntime.py (+ PyGame and NumPy installed) 
+
 PyKinectRuntime is what you need. See how to use it in PyKinectBodyGame sample 
+
 TODO:  insert link to where the package lives and install instructions 
 
