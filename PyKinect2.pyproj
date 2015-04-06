@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>862156b9-96a7-4f85-bb66-b7ec70418cf7</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>PyKinectTest.py</StartupFile>
+    <StartupFile>PyKinectBodyGame.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -23,9 +23,8 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="PyKinectTest.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="PyKinectBodyGame.py" />
+    <Compile Include="PyKinectRuntime.py" />
     <Compile Include="PyKinectV2.py" />
   </ItemGroup>
   <ItemGroup>

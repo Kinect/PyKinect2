@@ -107,9 +107,9 @@ IBody._methods_ = [
     COMMETHOD(['propget'], HRESULT, 'TrackingId',
               ( ['retval', 'out'], POINTER(c_ulonglong), 'TrackingId' )),
     COMMETHOD(['propget'], HRESULT, 'IsTracked',
-              ( ['retval', 'out'], STRING, 'tracked' )),
+              ( ['retval', 'out'], POINTER(c_bool), 'tracked' )),
     COMMETHOD(['propget'], HRESULT, 'IsRestricted',
-              ( ['retval', 'out'], STRING, 'IsRestricted' )),
+              ( ['retval', 'out'], POINTER(c_bool), 'IsRestricted' )),
     COMMETHOD(['propget'], HRESULT, 'Lean',
               ( ['retval', 'out'], POINTER(_PointF), 'amount' )),
     COMMETHOD(['propget'], HRESULT, 'LeanTrackingState',
@@ -2890,6 +2890,7 @@ _WaitForMultipleObjects.argtypes = [ctypes.c_uint32, ctypes.POINTER(ctypes.c_voi
 _WaitForMultipleObjects.restype = ctypes.c_uint32
 
 _WAIT_OBJECT_0 = 0
+_WAIT_OBJECT_1 = 1
 _INFINITE = 0xffffffff
 
 _oleaut32 = ctypes.WinDLL('oleaut32')
