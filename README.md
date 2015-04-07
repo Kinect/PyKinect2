@@ -12,7 +12,7 @@ PyKinectBodyGame is a sample game. It demonstrates how to use Kinect color and b
 * [Kinect for Windows SDK v2](http://aka.ms/k4wv2sdk)
 * [Kinect v2 sensor and adapter](http://aka.ms/k4wv2purchase) Note:  you can use a Kinect for Xbox One as long as you also have the Kinect Adapter for Windows
 * [PyGame](http://www.pygame.org) - for running PyKinectBodyGame sample 
-  ![PyGame](https://monosnap.com/file/84MCsZtixLWThYzqWUMt68YphxTqn5.png)
+  ![PyGame](https://monosnap.com/file/4RzEdOzVhik4jj15jAg8uDQgYgwZ6B.png)
 
 ## Installation
 You only need PyKinectV2.py and PyKinectRuntime.py (+ comtypes and NumPy installed, and PyGame for running PyKinectBodyGame). PyKinectRuntime class is what you need for working with Kinect sensor. See how to use it in PyKinectBodyGame sample.
