@@ -8,19 +8,21 @@ import comtypes
 import sys
 import numpy
 import time
-
 import importlib 
 
 if sys.hexversion >= 0x03000000: 
     import _thread as thread
+    from queue import Queue, Empty
 else:
-    import thread 
+    import thread
+    from Queue import Queue, Empty
 
 KINECT_MAX_BODY_COUNT = 6
 
+
 class PyKinectRuntime(object):
     """manages Kinect objects and simplifying access to them"""
-    def __init__(self, frame_source_types):
+    def __init__(self, frame_source_types, max_frames_stored=2):
         # recipe to get address of surface: http://archives.seul.org/pygame/users/Apr-2008/msg00218.html
         is_64bits = sys.maxsize > 2**32
         if not is_64bits:
@@ -51,14 +53,6 @@ class PyKinectRuntime(object):
         self._infrared_frame_arrived_event = 0  
         self._long_exposure_infrared_frame_arrived_event = 0
         self._audio_frame_arrived_event = 0
-
-        self._color_frame_lock = thread.allocate()
-        self._depth_frame_lock = thread.allocate()
-        self._body_frame_lock = thread.allocate()
-        self._body_index_frame_lock = thread.allocate()
-        self._infrared_frame_lock = thread.allocate()
-        self._long_exposure_infrared_frame_lock = thread.allocate()
-        self._audio_frame_lock = thread.allocate()
 
         #initialize sensor
         self._sensor = ctypes.POINTER(PyKinectV2.IKinectSensor)()
@@ -137,28 +131,18 @@ class PyKinectRuntime(object):
             self._body_frame_data = ctypes.cast(self._body_frame_data_type(), ctypes.POINTER(ctypes.POINTER(IBody)))
             self._body_frame_reader = self._body_source.OpenReader()
             self._body_frame_arrived_event = self._body_frame_reader.SubscribeFrameArrived()
-            self._body_frame_bodies = None
             self._handles[self._waitHandleCount] = self._body_frame_arrived_event
             self._waitHandleCount += 1
 
         thread.start_new_thread(self.kinect_frame_thread, ())
 
-        self._last_color_frame = None
-        self._last_depth_frame = None
-        self._last_body_frame = None
-        self._last_body_index_frame = None
-        self._last_infrared_frame = None
-        self._last_long_exposure_infrared_frame = None
-        self._last_audio_frame = None
-
-        start_clock = time.clock()
-        self._last_color_frame_access = self._last_color_frame_time = start_clock
-        self._last_body_frame_access = self._last_body_frame_time = start_clock
-        self._last_body_index_frame_access = self._last_body_index_frame_time = start_clock
-        self._last_depth_frame_access = self._last_depth_frame_time = start_clock
-        self._last_infrared_frame_access = self._last_infrared_frame_time = start_clock
-        self._last_long_exposure_infrared_frame_access = self._last_long_exposure_infrared_frame_time = start_clock
-        self._last_audio_frame_access = self._last_audio_frame_time = start_clock
+        self._color_frame_queue = Queue(maxsize=max_frames_stored)
+        self._depth_frame_queue = Queue(maxsize=max_frames_stored)
+        self._body_frame_queue = Queue(maxsize=max_frames_stored)
+        self._body_index_frame_queue = Queue(maxsize=max_frames_stored)
+        self._infrared_frame_queue = Queue(maxsize=max_frames_stored)
+        self._long_exposure_infrared_frame_queue = Queue(maxsize=max_frames_stored)
+        self._audio_frame_queue = Queue(maxsize=max_frames_stored)
 
     def close(self):
         if self._sensor is not None:
@@ -198,74 +182,32 @@ class PyKinectRuntime(object):
        bytes.object = surface_buffer_interface
        return bytes
 
-    def has_new_color_frame(self):
-        has = (self._last_color_frame_time > self._last_color_frame_access)
-        return has
+    def get_last_color_frame(self, blocking=True):
+        try:
+            return self._color_frame_queue.get(block=blocking)
+        except Empty:
+            return None
 
-    def has_new_depth_frame(self):
-        has = (self._last_depth_frame_time > self._last_depth_frame_access)
-        return has
+    def get_last_depth_frame(self, blocking=True):
+        try:
+            return self._depth_frame_queue.get(block=blocking)
+        except Empty:
+            return None
 
-    def has_new_body_frame(self):
-        has = (self._last_body_frame_time > self._last_body_frame_access)
-        return has
+    def get_last_body_frame(self, blocking=True):
+        try:
+            return self._body_frame_queue.get(block=blocking)
+        except Empty:
+            return None
 
-    def has_new_body_index_frame(self):
-        has = (self._last_body_index_frame_time > self._last_body_index_frame_access)
-        return has
-
-    def has_new_infrared_frame(self):
-        has = (self._last_infrared_frame_time > self._last_infrared_frame_access)
-        return has
-
-    def has_new_long_exposure_infrared_frame(self):
-        has = (self._last_long_exposure_infrared_frame_time > self._last_long_exposure_infrared_frame_access)
-        return has
-
-    def has_new_audio_frame(self):
-        has = (self._last_audio_frame_time > self._last_audio_frame_access)
-        return has
-
-
-    def get_last_color_frame(self):
-        with self._color_frame_lock:
-            if self._color_frame_data is not None:
-                data = numpy.copy(numpy.ctypeslib.as_array(self._color_frame_data, shape=(self._color_frame_data_capacity.value,)))
-                _last_color_frame_access = time.clock()
-                return data
-            else:
-                return None
-
-    def get_last_depth_frame(self):
-        with self._depth_frame_lock:
-            if self._depth_frame_data is not None:
-                data = numpy.copy(numpy.ctypeslib.as_array(self._depth_frame_data, shape=(self._depth_frame_data_capacity.value,)))
-                _last_color_frame_access = time.clock()
-                return data
-            else:
-                return None
-
-    def get_last_body_index_frame(self):
-        with self._body_index_frame_lock:
-            if self._body_index_frame_data is not None:
-                data = numpy.copy(numpy.ctypeslib.as_array(self._body_index_frame_data, shape=(self._body_index_frame_data_capacity.value,)))
-                _last_color_frame_access = time.clock()
-                return data
-            else:
-                return None
-
-    def get_last_body_frame(self):
-        with self._body_frame_lock:
-            if self._body_frame_bodies is not None:
-                _last_body_frame_access = time.clock()
-                return self._body_frame_bodies.copy()
-            else:
-                return None
-
+    def get_last_body_index_frame(self, blocking=True):
+        try:
+            return self._body_index_frame_queue.get(block=blocking)
+        except Empty:
+            return None
 
     def body_joint_to_color_space(self, joint): 
         return self._mapper.MapCameraPointToColorSpace(joint.Position) 
-
 
     def body_joints_to_color_space(self, joints):
         joint_points = numpy.ndarray((PyKinectV2.JointType_Count), dtype=numpy.object)
@@ -274,7 +216,6 @@ class PyKinectRuntime(object):
             joint_points[j] = self.body_joint_to_color_space(joints[j])
 
         return joint_points
-
 
     def kinect_frame_thread(self):
         while 1:    
@@ -300,24 +241,18 @@ class PyKinectRuntime(object):
                 else:
                     break
 
-    
     def handle_color_arrived(self, handle_index):
         colorFrameEventData = self._color_frame_reader.GetFrameArrivedEventData(self._handles[handle_index])
         colorFrameRef = colorFrameEventData.FrameReference
         try:
             colorFrame = colorFrameRef.AcquireFrame()
             try:
-                with self._color_frame_lock:
-                    colorFrame.CopyConvertedFrameDataToArray(self._color_frame_data_capacity, self._color_frame_data, PyKinectV2.ColorImageFormat_Bgra)
-                    self._last_color_frame_time = time.clock()
-            except: 
+                colorFrame.CopyConvertedFrameDataToArray(self._color_frame_data_capacity, self._color_frame_data, PyKinectV2.ColorImageFormat_Bgra)
+                self._color_frame_queue.put(numpy.copy(numpy.ctypeslib.as_array(self._color_frame_data, shape=(self._color_frame_data_capacity.value,))))
+            except:
                 pass
-            colorFrame = None
         except:
             pass
-        colorFrameRef = None
-        colorFrameEventData = None
-
 
     def handle_depth_arrived(self, handle_index):
         depthFrameEventData = self._depth_frame_reader.GetFrameArrivedEventData(self._handles[handle_index])
@@ -325,17 +260,12 @@ class PyKinectRuntime(object):
         try:
             depthFrame = depthFrameRef.AcquireFrame()
             try:
-                with self._depth_frame_lock:
-                    depthFrame.CopyFrameDataToArray(self._depth_frame_data_capacity, self._depth_frame_data)
-                    self._last_depth_frame_time = time.clock()
+                depthFrame.CopyFrameDataToArray(self._depth_frame_data_capacity, self._depth_frame_data)
+                self._depth_frame_queue.put(numpy.copy(numpy.ctypeslib.as_array(self._depth_frame_data, shape=(self._depth_frame_data_capacity.value,))))
             except:
                 pass
-            depthFrame = None
         except:
             pass
-        depthFrameRef = None
-        depthFrameEventData = None
-
   
     def handle_body_arrived(self, handle_index):
         bodyFrameEventData = self._body_frame_reader.GetFrameArrivedEventData(self._handles[handle_index])
@@ -344,10 +274,8 @@ class PyKinectRuntime(object):
             bodyFrame = bofyFrameRef.AcquireFrame()
 
             try: 
-                with self._body_frame_lock:
-                    bodyFrame.GetAndRefreshBodyData(self._body_frame_data_capacity, self._body_frame_data)
-                    self._body_frame_bodies = KinectBodyFrameData(bodyFrame, self._body_frame_data, self.max_body_count)
-                    self._last_body_frame_time = time.clock()
+                bodyFrame.GetAndRefreshBodyData(self._body_frame_data_capacity, self._body_frame_data)
+                self._body_frame_queue.put(KinectBodyFrameData(bodyFrame, self._body_frame_data, self.max_body_count).copy())
 
                 # need these 2 lines as a workaround for handling IBody referencing exception 
                 self._body_frame_data = None
@@ -355,13 +283,8 @@ class PyKinectRuntime(object):
 
             except:
                 pass
-                            
-            bodyFrame = None
         except:
             pass
-        bofyFrameRef = None
-        bodyFrameEventData = None
-
 
     def handle_body_index_arrived(self, handle_index):
         bodyIndexFrameEventData = self._body_index_frame_reader.GetFrameArrivedEventData(self._handles[handle_index])
@@ -369,16 +292,12 @@ class PyKinectRuntime(object):
         try:
             bodyIndexFrame = bodyIndexFrameRef.AcquireFrame()
             try:
-                with self._body_index_frame_lock:
-                    bodyIndexFrame.CopyFrameDataToArray(self._body_index_frame_data_capacity, self._body_index_frame_data)
-                    self._last_body_index_frame_time = time.clock()
-            except: 
+                bodyIndexFrame.CopyFrameDataToArray(self._body_index_frame_data_capacity, self._body_index_frame_data)
+                self._body_index_frame_queue.put(numpy.copy(numpy.ctypeslib.as_array(self._body_index_frame_data, shape=(self._body_index_frame_data_capacity.value,))))
+            except:
                 pass
-            bodyIndexFrame = None
         except:
             pass
-        bodyIndexFrame = None
-        bodyIndexFrameEventData = None
 
     def handle_infrared_arrived(self, handle_index):
         pass 
@@ -388,7 +307,6 @@ class PyKinectRuntime(object):
 
     def handle_audio_arrived(self, handle_index):
         pass 
-
 
 
 class KinectBody(object): 
@@ -443,5 +361,4 @@ class KinectBodyFrameData(object):
         res.floor_clip_plane = self.floor_clip_plane
         res.bodies = numpy.copy(self.bodies)
         return res 
-       
-      
+
