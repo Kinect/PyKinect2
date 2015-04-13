@@ -5,7 +5,9 @@ Enables writing Kinect applications, games, and experiences using Python.  Inspi
 Only color, depth, body and body index frames are supported in this version. 
 PyKinectBodyGame is a sample game. It demonstrates how to use Kinect color and body frames.
 
+
 ## Prerequisites
+
 The easiest way to get most of the pre-requisites is to use Anaconda which includes NumPy.  You'll then need to pip install comtypes.  The PyKinectBodyGame sample requires PyGame which needs to be manually installed.
 
 1. Download [Anaconda](https://store.continuum.io/cshop/anaconda/) get the 32-bit version.  This includes NumPy.
@@ -21,5 +23,29 @@ Full List of Dependencies
 * [PyGame](http://www.pygame.org) - for running PyKinectBodyGame sample 
   ![PyGame](https://monosnap.com/file/4RzEdOzVhik4jj15jAg8uDQgYgwZ6B.png)
 
+
 ## Installation
-You only need PyKinectV2.py and PyKinectRuntime.py (+ comtypes and NumPy installed, and PyGame for running PyKinectBodyGame). PyKinectRuntime class is what you need for working with Kinect sensor. See how to use it in PyKinectBodyGame sample.
+
+The package can be installed through pip using the usual means:
+```
+pip install pykinect2
+````
+If you are using a virtual environment, be sure to activate it first.
+
+For more information, please see https://pip.pypa.io/en/latest/user_guide.html#installing-packages
+
+
+## Installation (Manual)
+
+To install the package manually, clone this repository to a local folder and include it in the appropriate python environment. If installing in a virtual environment, be sure to install all required dependencies (above).
+
+For example:
+```
+cd c:\projects\myproject\env\
+/Scripts/activate.bat
+
+easy_install -a c:\projects\downloads\PyKinect2
+```
+After installation is complete, you can launch the interactive python shell and `import pykinect2` to ensure everything has been installed properly.
+
+Core helper classes for working with the Kinect sensor are located in PyKinectRuntime.py. For usage examples, please see /examples/PyKinectBodyGame.py.
