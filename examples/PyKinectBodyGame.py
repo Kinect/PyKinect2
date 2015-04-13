@@ -132,14 +132,10 @@ class BodyGameRuntime(object):
 
             # --- Getting frames and drawing  
             # --- Woohoo! We've got a color frame! Let's fill out back buffer surface with frame's data 
-            if self._kinect.has_new_color_frame():
-                frame = self._kinect.get_last_color_frame()
-                self.draw_color_frame(frame, self._frame_surface)
-                frame = None
+            self.draw_color_frame(self._kinect.get_last_color_frame(), self._frame_surface)
 
             # --- Cool! We have a body frame, so can get skeletons
-            if self._kinect.has_new_body_frame(): 
-                self._bodies = self._kinect.get_last_body_frame()
+            self._bodies = self._kinect.get_last_body_frame()
 
             # --- draw skeletons to _frame_surface
             if self._bodies is not None: 
