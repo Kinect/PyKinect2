@@ -87,7 +87,6 @@ class PyKinectRuntime(object):
         self._infrared_source = self._sensor.InfraredFrameSource
         self.infrared_frame_desc = self._infrared_source.FrameDescription 
         self._depth_source = self._sensor.DepthFrameSource 
-       
         self.depth_frame_desc = self._depth_source.FrameDescription 
         self._body_index_source = self._sensor.BodyIndexFrameSource 
         self.body_index_frame_desc = self._body_index_source.FrameDescription 

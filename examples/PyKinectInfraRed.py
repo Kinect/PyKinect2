@@ -26,32 +26,32 @@ SKELETON_COLORS = [pygame.color.THECOLORS["red"],
 
 class InfraRedRuntime(object):
     def __init__(self):
-        pygame.init()
+		pygame.init()
 
-        # Used to manage how fast the screen updates
-        self._clock = pygame.time.Clock()
+		# Used to manage how fast the screen updates
+		self._clock = pygame.time.Clock()
 
-        # Set the width and height of the screen [width, height]
-        self._infoObject = pygame.display.Info()
-        self._screen = pygame.display.set_mode((self._infoObject.current_w >> 1, self._infoObject.current_h >> 1), 
-                                               pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE, 32)
+		# Set the width and height of the screen [width, height]
+		self._infoObject = pygame.display.Info()
+		self._screen = pygame.display.set_mode((self._infoObject.current_w >> 1, self._infoObject.current_h >> 1), 
+											   pygame.HWSURFACE|pygame.DOUBLEBUF|pygame.RESIZABLE, 32)
 
-        pygame.display.set_caption("Kinect for Windows v2 Body Game")
+		pygame.display.set_caption("Kinect for Windows v2 InfraRed")
 
-        # Loop until the user clicks the close button.
-        self._done = False
+		# Loop until the user clicks the close button.
+		self._done = False
 
-        # Used to manage how fast the screen updates
-        self._clock = pygame.time.Clock()
+		# Used to manage how fast the screen updates
+		self._clock = pygame.time.Clock()
 
-        # Kinect runtime object, we want only color and body frames 
-        self._kinect = PyKinectRuntime.PyKinectRuntime(PyKinectV2.FrameSourceTypes_Infrared | PyKinectV2.FrameSourceTypes_Body)
+		# Kinect runtime object, we want only color and body frames 
+		self._kinect = PyKinectRuntime.PyKinectRuntime(PyKinectV2.FrameSourceTypes_Infrared | PyKinectV2.FrameSourceTypes_Body)
 
-        # back buffer surface for getting Kinect infrared frames, 8bit grey, width and height equal to the Kinect color frame size
-        self._frame_surface = pygame.Surface((self._kinect.infrared_frame_desc.Width, self._kinect.infrared_frame_desc.Height), 0, 8)
-
-        # here we will store skeleton data 
-        self._bodies = None
+		# back buffer surface for getting Kinect infrared frames, 8bit grey, width and height equal to the Kinect color frame size
+		self._frame_surface = pygame.Surface((self._kinect.infrared_frame_desc.Width, self._kinect.infrared_frame_desc.Height), 0, 8)
+		print (self._kinect.infrared_frame_desc.Width, self._kinect.infrared_frame_desc.Height)
+		# here we will store skeleton data 
+		self._bodies = None
 
 
     def draw_body_bone(self, joints, jointPoints, color, joint0, joint1):
@@ -137,7 +137,7 @@ class InfraRedRuntime(object):
             # --- Game logic should go here
 
             # --- Getting frames and drawing  
-            # --- Woohoo! We've got a color frame! Let's fill out back buffer surface with frame's data 
+            # --- Woohoo! We've got a frame! Let's fill out back buffer surface with frame's data 
             if self._kinect.has_new_infrared_frame():
                 frame = self._kinect.get_last_color_frame()
                 self.draw_infrared_frame(frame, self._frame_surface)
@@ -164,7 +164,7 @@ class InfraRedRuntime(object):
             h_to_w = float(self._frame_surface.get_height()) / self._frame_surface.get_width()
             target_height = int(h_to_w * self._screen.get_width())
             surface_to_draw = pygame.transform.scale(self._frame_surface, (self._screen.get_width(), target_height));
-            self._screen.blit(surface_to_draw, (0,0))
+            self._screen.blit(self._frame_surface, (0,0))
             surface_to_draw = None
             pygame.display.update()
 
