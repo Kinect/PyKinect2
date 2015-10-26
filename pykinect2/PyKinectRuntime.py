@@ -231,7 +231,7 @@ class PyKinectRuntime(object):
         with self._color_frame_lock:
             if self._color_frame_data is not None:
                 data = numpy.copy(numpy.ctypeslib.as_array(self._color_frame_data, shape=(self._color_frame_data_capacity.value,)))
-                _last_color_frame_access = time.clock()
+                self._last_color_frame_access = time.clock()
                 return data
             else:
                 return None
@@ -240,7 +240,7 @@ class PyKinectRuntime(object):
         with self._depth_frame_lock:
             if self._depth_frame_data is not None:
                 data = numpy.copy(numpy.ctypeslib.as_array(self._depth_frame_data, shape=(self._depth_frame_data_capacity.value,)))
-                _last_color_frame_access = time.clock()
+                self._last_color_frame_access = time.clock()
                 return data
             else:
                 return None
@@ -249,7 +249,7 @@ class PyKinectRuntime(object):
         with self._body_index_frame_lock:
             if self._body_index_frame_data is not None:
                 data = numpy.copy(numpy.ctypeslib.as_array(self._body_index_frame_data, shape=(self._body_index_frame_data_capacity.value,)))
-                _last_color_frame_access = time.clock()
+                self._last_color_frame_access = time.clock()
                 return data
             else:
                 return None
@@ -257,7 +257,7 @@ class PyKinectRuntime(object):
     def get_last_body_frame(self):
         with self._body_frame_lock:
             if self._body_frame_bodies is not None:
-                _last_body_frame_access = time.clock()
+                self._last_body_frame_access = time.clock()
                 return self._body_frame_bodies.copy()
             else:
                 return None
