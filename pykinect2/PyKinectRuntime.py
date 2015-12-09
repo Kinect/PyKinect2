@@ -84,6 +84,8 @@ class PyKinectRuntime(object):
 
         self._color_source = self._sensor.ColorFrameSource 
         self.color_frame_desc = self._color_source.FrameDescription
+        self._infrared_source = self._sensor.InfraredFrameSource
+        self.infrared_frame_desc = self._infrared_source.FrameDescription 
         self._depth_source = self._sensor.DepthFrameSource 
         self.depth_frame_desc = self._depth_source.FrameDescription 
         self._body_index_source = self._sensor.BodyIndexFrameSource 
@@ -110,6 +112,16 @@ class PyKinectRuntime(object):
             self._handles[self._waitHandleCount] = self._color_frame_arrived_event
             self._waitHandleCount += 1
 
+        if(self.frame_source_types & FrameSourceTypes_Infrared):
+            self._infrared_frame_data = ctypes.POINTER(ctypes.c_ushort) 
+            self._infrared_frame_data_capacity = ctypes.c_uint(self.infrared_frame_desc.Width * self.infrared_frame_desc.Height)
+            self._infrared_frame_data_type = ctypes.c_ushort * self._infrared_frame_data_capacity.value
+            self._infrared_frame_data = ctypes.cast(self._infrared_frame_data_type(), ctypes.POINTER(ctypes.c_ushort))
+            self._infrared_frame_reader = self._infrared_source.OpenReader()
+            self._infrared_frame_arrived_event = self._infrared_frame_reader.SubscribeFrameArrived()
+            self._handles[self._waitHandleCount] = self._infrared_frame_arrived_event
+            self._waitHandleCount += 1
+            
         if(self.frame_source_types & FrameSourceTypes_Depth):
             self._depth_frame_data = ctypes.POINTER(ctypes.c_ushort) 
             self._depth_frame_data_capacity = ctypes.c_uint(self.depth_frame_desc.Width * self.depth_frame_desc.Height)
@@ -231,6 +243,15 @@ class PyKinectRuntime(object):
         with self._color_frame_lock:
             if self._color_frame_data is not None:
                 data = numpy.copy(numpy.ctypeslib.as_array(self._color_frame_data, shape=(self._color_frame_data_capacity.value,)))
+                _last_color_frame_access = time.clock()
+                return data
+            else:
+                return None
+
+    def get_last_infrared_frame(self):
+        with self._infrared_frame_lock:
+            if self._infrared_frame_data is not None:
+                data = numpy.copy(numpy.ctypeslib.as_array(self._infrared_frame_data, shape=(self._infrared_frame_data_capacity.value,)))
                 _last_color_frame_access = time.clock()
                 return data
             else:
@@ -381,7 +402,21 @@ class PyKinectRuntime(object):
         bodyIndexFrameEventData = None
 
     def handle_infrared_arrived(self, handle_index):
-        pass 
+        infraredFrameEventData = self._infrared_frame_reader.GetFrameArrivedEventData(self._handles[handle_index])
+        infraredFrameRef = infraredFrameEventData.FrameReference
+        try:
+            infraredFrame = infraredFrameRef.AcquireFrame()
+            try:
+                with self._infrared_frame_lock:
+                    infraredFrame.CopyFrameDataToArray(self._infrared_frame_data_capacity, self._infrared_frame_data)
+                    self._last_infrared_frame_time = time.clock()
+            except:
+                pass
+            infraredFrame = None
+        except:
+            pass
+        infraredFrameRef = None
+        infraredFrameEventData = None
 
     def handle_long_exposure_infrared_arrived(self, handle_index):
         pass 
