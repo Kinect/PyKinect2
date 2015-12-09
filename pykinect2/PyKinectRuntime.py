@@ -243,7 +243,7 @@ class PyKinectRuntime(object):
         with self._color_frame_lock:
             if self._color_frame_data is not None:
                 data = numpy.copy(numpy.ctypeslib.as_array(self._color_frame_data, shape=(self._color_frame_data_capacity.value,)))
-                _last_color_frame_access = time.clock()
+                self._last_color_frame_access = time.clock()
                 return data
             else:
                 return None
@@ -261,7 +261,7 @@ class PyKinectRuntime(object):
         with self._depth_frame_lock:
             if self._depth_frame_data is not None:
                 data = numpy.copy(numpy.ctypeslib.as_array(self._depth_frame_data, shape=(self._depth_frame_data_capacity.value,)))
-                _last_color_frame_access = time.clock()
+                self._last_color_frame_access = time.clock()
                 return data
             else:
                 return None
@@ -270,7 +270,7 @@ class PyKinectRuntime(object):
         with self._body_index_frame_lock:
             if self._body_index_frame_data is not None:
                 data = numpy.copy(numpy.ctypeslib.as_array(self._body_index_frame_data, shape=(self._body_index_frame_data_capacity.value,)))
-                _last_color_frame_access = time.clock()
+                self._last_color_frame_access = time.clock()
                 return data
             else:
                 return None
@@ -278,7 +278,7 @@ class PyKinectRuntime(object):
     def get_last_body_frame(self):
         with self._body_frame_lock:
             if self._body_frame_bodies is not None:
-                _last_body_frame_access = time.clock()
+                self._last_body_frame_access = time.clock()
                 return self._body_frame_bodies.copy()
             else:
                 return None
@@ -468,6 +468,7 @@ class KinectBodyFrameData(object):
         self.floor_clip_plane = None
         if bodyFrame is not None:
             self.floor_clip_plane = bodyFrame.FloorClipPlane
+            self.relative_time = bodyFrame.RelativeTime
 
             self.bodies = numpy.ndarray((max_body_count), dtype=numpy.object)
             for i in range(0, max_body_count):
@@ -476,6 +477,7 @@ class KinectBodyFrameData(object):
     def copy(self):
         res = KinectBodyFrameData(None, None, 0)
         res.floor_clip_plane = self.floor_clip_plane
+        res.relative_time = self.relative_time
         res.bodies = numpy.copy(self.bodies)
         return res 
        
