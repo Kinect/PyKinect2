@@ -287,6 +287,9 @@ class PyKinectRuntime(object):
     def body_joint_to_color_space(self, joint): 
         return self._mapper.MapCameraPointToColorSpace(joint.Position) 
 
+    def body_joint_to_depth_space(self, joint): 
+        return self._mapper.MapCameraPointToDepthSpace(joint.Position) 
+
 
     def body_joints_to_color_space(self, joints):
         joint_points = numpy.ndarray((PyKinectV2.JointType_Count), dtype=numpy.object)
@@ -296,6 +299,13 @@ class PyKinectRuntime(object):
 
         return joint_points
 
+    def body_joints_to_depth_space(self, joints):
+        joint_points = numpy.ndarray((PyKinectV2.JointType_Count), dtype=numpy.object)
+
+        for j in range(0, PyKinectV2.JointType_Count):
+            joint_points[j] = self.body_joint_to_depth_space(joints[j])
+
+        return joint_points
 
     def kinect_frame_thread(self):
         while 1:    
