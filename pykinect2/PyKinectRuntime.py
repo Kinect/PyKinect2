@@ -252,7 +252,7 @@ class PyKinectRuntime(object):
         with self._infrared_frame_lock:
             if self._infrared_frame_data is not None:
                 data = numpy.copy(numpy.ctypeslib.as_array(self._infrared_frame_data, shape=(self._infrared_frame_data_capacity.value,)))
-                _last_color_frame_access = time.clock()
+                self._last_infrared_frame_access = time.clock()
                 return data
             else:
                 return None
@@ -261,7 +261,7 @@ class PyKinectRuntime(object):
         with self._depth_frame_lock:
             if self._depth_frame_data is not None:
                 data = numpy.copy(numpy.ctypeslib.as_array(self._depth_frame_data, shape=(self._depth_frame_data_capacity.value,)))
-                self._last_color_frame_access = time.clock()
+                self._last_depth_frame_access = time.clock()
                 return data
             else:
                 return None
@@ -270,7 +270,7 @@ class PyKinectRuntime(object):
         with self._body_index_frame_lock:
             if self._body_index_frame_data is not None:
                 data = numpy.copy(numpy.ctypeslib.as_array(self._body_index_frame_data, shape=(self._body_index_frame_data_capacity.value,)))
-                self._last_color_frame_access = time.clock()
+                self._last_body_index_frame_access = time.clock()
                 return data
             else:
                 return None
