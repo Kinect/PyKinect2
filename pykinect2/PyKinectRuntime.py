@@ -370,9 +370,9 @@ class PyKinectRuntime(object):
   
     def handle_body_arrived(self, handle_index):
         bodyFrameEventData = self._body_frame_reader.GetFrameArrivedEventData(self._handles[handle_index])
-        bofyFrameRef = bodyFrameEventData.FrameReference
+        bodyFrameRef = bodyFrameEventData.FrameReference
         try:
-            bodyFrame = bofyFrameRef.AcquireFrame()
+            bodyFrame = bodyFrameRef.AcquireFrame()
 
             try: 
                 with self._body_frame_lock:
@@ -390,7 +390,7 @@ class PyKinectRuntime(object):
             bodyFrame = None
         except:
             pass
-        bofyFrameRef = None
+        bodyFrameRef = None
         bodyFrameEventData = None
 
 
