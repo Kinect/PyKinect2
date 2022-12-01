@@ -2865,7 +2865,7 @@ __all__ = [ 'IKinectSensor', 'IAudioBeamSubFrame',
            'JointType_HipLeft', 'ColorImageFormat_Rgba',
            'IColorCameraSettings', '_DetectionResult',
            'IColorFrameReader', 'ColorImageFormat_Yuy2', '_Activity']
-from comtypes import _check_version; _check_version('')
+#from comtypes import _check_version; _check_version('1.1.11')
 
 
 KINECT_SKELETON_COUNT = 6
