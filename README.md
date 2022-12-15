@@ -49,3 +49,7 @@ easy_install -a c:\projects\downloads\PyKinect2
 After installation is complete, you can launch the interactive python shell and `import pykinect2` to ensure everything has been installed properly.
 
 Core helper classes for working with the Kinect sensor are located in PyKinectRuntime.py. For usage examples, please see /examples/PyKinectBodyGame.py.
+
+This is basically a fork of the original PyKinect project on CodePlex.  The original project was written by [Chris Lovett](http://www.chrislovett.co.uk/) and [David Gouveia](http://www.davidgouveia.net/).  The original project is no longer maintained and is not compatible with Python 3.  This project is a fork of the original project with the following changes:
+
+* Updated to work with Python 3.10.8
