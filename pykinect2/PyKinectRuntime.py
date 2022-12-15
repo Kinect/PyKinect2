@@ -2,14 +2,10 @@ from pykinect2 import PyKinectV2
 from pykinect2.PyKinectV2 import *
 
 import ctypes
-import _ctypes 
-from _ctypes import COMError
-import comtypes
 import sys
 import numpy
 import time
 
-import importlib 
 
 if sys.hexversion >= 0x03000000: 
     import _thread as thread

@@ -7,9 +7,7 @@ from ctypes import *
 from comtypes import *
 from comtypes import GUID
 from ctypes import HRESULT
-from comtypes import helpstring
 from comtypes import COMMETHOD
-from comtypes import dispid
 STRING = c_char_p
 INT_PTR = c_int
 from ctypes.wintypes import _LARGE_INTEGER
@@ -18,7 +16,6 @@ from ctypes.wintypes import _ULARGE_INTEGER
 from ctypes.wintypes import _FILETIME
 WSTRING = c_wchar_p
 
-from _ctypes import COMError
 comtypes.hresult.E_PENDING = 0x8000000A 
 
 import numpy.distutils.system_info as sysinfo
@@ -2865,7 +2862,8 @@ __all__ = [ 'IKinectSensor', 'IAudioBeamSubFrame',
            'JointType_HipLeft', 'ColorImageFormat_Rgba',
            'IColorCameraSettings', '_DetectionResult',
            'IColorFrameReader', 'ColorImageFormat_Yuy2', '_Activity']
-from comtypes import _check_version; _check_version('')
+
+# from comtypes import _check_version; _check_version('')
 
 
 KINECT_SKELETON_COUNT = 6
